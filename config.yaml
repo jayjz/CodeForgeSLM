@@ -1,0 +1,54 @@
+codeforge:
+  version: "1.0.0"
+  
+  # Model Configuration
+  models:
+    lead_architect: "gpt-4o"
+    specialists:
+      syntax_refactor: "gpt-4-turbo"
+      dependency_solver: "gpt-4-turbo"
+      docstring_writer: "gpt-4-turbo"
+      test_generator: "gpt-4o"
+      code_reviewer: "gpt-4o"
+  
+  # Language Support
+  supported_languages:
+    python:
+      extensions: [".py"]
+      target_versions: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+      test_frameworks: ["pytest", "unittest"]
+      doc_style: "google"
+    javascript:
+      extensions: [".js", ".jsx"]
+      target_versions: ["ES2020", "ES2021", "ES2022"]
+      test_frameworks: ["jest", "mocha"]
+      doc_style: "jsdoc"
+    typescript:
+      extensions: [".ts", ".tsx"]
+      target_versions: ["4.9", "5.0", "5.1"]
+      test_frameworks: ["jest", "vitest"]
+      doc_style: "tsdoc"
+  
+  # Processing Limits
+  limits:
+    max_file_size_mb: 1
+    max_files_per_batch: 10
+    max_concurrent_tasks: 5
+    timeout_per_task_minutes: 10
+  
+  # Security Settings
+  security:
+    create_backups: true
+    scan_for_secrets: true
+    require_approval_for: ["database_changes", "api_changes"]
+    
+  # Git Integration
+  git:
+    create_branch: true
+    branch_prefix: "codeforge-"
+    commit_message_template: |
+      CodeForge AI: {task_summary}
+      
+      {task_details}
+      
+      Automated by CodeForge AI v{version}
