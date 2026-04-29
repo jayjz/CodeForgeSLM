@@ -1,10 +1,18 @@
+import asyncio
 import click
+import logging
 import os
 import time
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.table import Table
 from dotenv import load_dotenv
+from api.main import JobStatus
+from core.logging_config import configure_logging
+from core.orchestrator import run_pm_job
+
+configure_logging()
+logger = logging.getLogger("agentforge_pm.cli")
 
 load_dotenv()
 console = Console()
@@ -84,6 +92,76 @@ def modernize(repo_url, goals, branch, dry_run):
         console.print("\n[bold green]✅ Modernization complete![/bold green]")
         console.print(f"   [cyan]Changes have been committed to branch:[/cyan] [bold yellow]{branch}[/bold yellow]")
         console.print("   Please review the changes and create a pull request.")
+
+@cli.command()
+@click.option(
+    '--project-path',
+    type=click.Path(exists=True, readable=True),
+    default=None,
+    help='Optional local folder or file containing PM artifacts. Uses synthetic data when omitted.',
+)
+@click.option(
+    '--goals',
+    '-g',
+    multiple=True,
+    required=True,
+    help='Define a PM goal. Can be used multiple times.',
+)
+def forge_pm(project_path, goals):
+    """
+    Run AgentForge PM for HVAC, construction, and industrial automation projects.
+    """
+    job_id = f"cli-pm-{int(time.time())}"
+    jobs = {job_id: JobStatus(job_id=job_id, status="PENDING", progress=0.0, details="Queued.")}
+
+    console.print("[bold blue]Starting AgentForge PM[/bold blue]")
+    console.print(f"   [cyan]Project Path:[/cyan] {project_path or 'synthetic fallback'}")
+    console.print(f"   [cyan]Goals:[/cyan] {', '.join(goals)}")
+    result = {}
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Running PM agents...", total=100)
+
+        async def run_with_progress():
+            pm_task = asyncio.create_task(run_pm_job(
+                job_id=job_id,
+                goals=list(goals),
+                project_path=project_path,
+                jobs=jobs,
+            ))
+            while not pm_task.done():
+                progress.update(
+                    task,
+                    completed=jobs[job_id].progress * 100,
+                    description=jobs[job_id].details,
+                )
+                await asyncio.sleep(0.5)
+            finished = await pm_task
+            progress.update(
+                task,
+                completed=jobs[job_id].progress * 100,
+                description=jobs[job_id].details,
+            )
+            return finished
+
+        try:
+            result = asyncio.run(run_with_progress())
+        except Exception as exc:
+            console.print(f"\n[bold red]AgentForge PM failed:[/bold red] {exc}")
+            console.print_exception(show_locals=False)
+            raise click.ClickException(str(exc)) from exc
+
+    report = result.get("pm_report", {})
+    console.print("\n[bold green]AgentForge PM complete[/bold green]")
+    console.print(f"   [cyan]Requirements:[/cyan] {report.get('requirements_count', 0)}")
+    console.print(f"   [cyan]High Risks:[/cyan] {report.get('high_risk_count', 0)}")
+    console.print(f"   [cyan]Planned Duration:[/cyan] {report.get('planned_duration_days', 'n/a')} days")
 
 @cli.command()
 @click.argument('path', type=click.Path(exists=True, file_okay=False, readable=True))
