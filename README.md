@@ -103,11 +103,13 @@ The CLI is a powerful tool for developers to interact with CodeForge AI directly
 
 ## AgentForge PM Streamlit Dashboard
 
-Run the lightweight AgentForge PM dashboard locally:
+Run the production-style AgentForge PM dashboard locally:
 
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-In the sidebar, upload supported PM artifacts (`.txt`, `.md`, `.csv`, `.xlsx`, `.xlsm`, `.pdf`) or click **Use Synthetic HVAC Data**. Click **Run AgentForge PM** to execute the existing PM orchestrator and view the requirements register, risk register and chart, schedule baseline, and executive summary. CSV exports and a PNG risk chart download are available from the results view.
+The dashboard opens with a rich pre-run preview, then lets you use the built-in synthetic HVAC dataset or upload supported PM artifacts (`.txt`, `.md`, `.csv`, `.xlsx`, `.xlsm`, `.pdf`) from the sidebar. Click **Run AgentForge PM** to execute the existing PM orchestrator with live progress.
+
+Results are organized into **Overview**, **Requirements**, **Risks**, **Schedule**, and **Summary** tabs. Individual CSV/PNG exports are still available, and **Download Full Report** creates a ZIP containing the generated CSVs, risk chart, and executive summary.
