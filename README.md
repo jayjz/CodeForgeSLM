@@ -1,4 +1,4 @@
-# 🤖 CodeForge AI
+# 🤖 AgentForge AI
 
 **CodeForge AI is an autonomous, multi-agent platform for intelligent codebase modernization. It acts as a team of expert AI software engineers that analyzes, refactors, documents, and tests your legacy code, automatically bringing it up to modern standards.**
 
@@ -98,3 +98,16 @@ The CLI is a powerful tool for developers to interact with CodeForge AI directly
     ```bash
     python cli.py analyze /path/to/your/local/project
     ```
+
+---
+
+## AgentForge PM Streamlit Dashboard
+
+Run the lightweight AgentForge PM dashboard locally:
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+In the sidebar, upload supported PM artifacts (`.txt`, `.md`, `.csv`, `.xlsx`, `.xlsm`, `.pdf`) or click **Use Synthetic HVAC Data**. Click **Run AgentForge PM** to execute the existing PM orchestrator and view the requirements register, risk register and chart, schedule baseline, and executive summary. CSV exports and a PNG risk chart download are available from the results view.
